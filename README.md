@@ -25,11 +25,23 @@ ApplAI entstand als Teamprojekt im Rahmen des Studiums an der Technischen Hochsc
 
 ## Vorschau
 
-### Anschreiben planen & iterieren
+### Anschreiben planen & iterieren *(Eigener Schwerpunkt)*
 ![Anschreiben-Editor](screenshots/anschreiben.png)
 
-### KI-Bewerbungsfoto-Generator (ComfyUI)
-![Bewerbungsfoto-Generator](screenshots/bewerbungsfoto.png)
+### KI-Bewerbungsfoto-Generator via ComfyUI *(Eigener Schwerpunkt)*
+![Bewerbungsfoto-Generator](screenshots/bewerbungsfoto.jpg)
+
+<details>
+<summary><strong>Weitere Ansichten der Gesamtanwendung anzeigen (Meine Daten & Lebenslauf)</strong></summary>
+<br>
+
+#### Stammdaten, Stationen & Kompetenzen
+![Meine Daten](screenshots/meine_daten.jpg)
+
+#### Individualisierbarer Lebenslauf & PDF-Export
+![Lebenslauf-Generator](screenshots/lebenslauf.png)
+
+</details>
 
 ---
 
@@ -90,8 +102,13 @@ python manage.py runserver
 ### 3. Optionale KI-Backends (Ollama & ComfyUI)
 
 Für die KI-Funktionen müssen die jeweiligen lokalen Dienste erreichbar sein:
+
 * **Anschreiben-Generierung & Chat:** Laufende Ollama-Instanz unter `http://127.0.0.1:11434`.
-* **Bewerbungsfotos:** Laufende ComfyUI-Instanz unter `http://127.0.0.1:8188` mit installiertem Checkpoint (z. B. `sdxl_base_1.0.safetensors` oder `realvisxlV50_v50LightningBakedvae.safetensors`). Über Umgebungsvariablen (`.env`) lassen sich `COMFYUI_BASE_URL`, `COMFYUI_CHECKPOINT`, `COMFYUI_PHOTO_PROMPT`, `COMFYUI_NEGATIVE_PROMPT`, `COMFYUI_STEPS` und `COMFYUI_TIMEOUT` anpassen.
+* **Bewerbungsfotos (ComfyUI unter `http://127.0.0.1:8188`):**
+  * **Custom Nodes** in `ComfyUI/custom_nodes/`: `comfyui_controlnet_aux` und `ComfyUI-ClipSeg` (inkl. `scikit-image` und `opencv-python-headless`)
+  * **Checkpoint** in `ComfyUI/models/checkpoints/`: `RealVisXL V5.0` (`.safetensors`)
+  * **ControlNet** in `ComfyUI/models/controlnet/`: ControlNet Canny SDXL (gespeichert als `diffusion_pytorch_model.fp16.safetensors`)
+  * Über eine `.env`-Datei lassen sich bei Bedarf `COMFYUI_BASE_URL`, `COMFYUI_CHECKPOINT`, `COMFYUI_PHOTO_PROMPT`, `COMFYUI_NEGATIVE_PROMPT`, `COMFYUI_STEPS` und `COMFYUI_TIMEOUT` anpassen.
 
 ---
 
