@@ -1,0 +1,245 @@
+<header style="margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center;">
+    <button class="primary" style="font-size: 0.85rem; padding: 0.5rem 0.9rem; display: inline-flex; align-items: center; gap: 0.4rem;" onclick="openSkillModal()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        Hinzufügen
+    </button>
+</header>
+
+
+<div id="skill-overlay" class="auth-overlay" onclick="closeSkillModal()"></div>
+
+<div id="skill-panel" class="auth-panel" style="width: min(500px, 90vw);">
+    <div class="auth-panel__header">
+        <h3>Kompetenz hinzufügen</h3>
+        <button class="ghost" onclick="closeSkillModal()">
+             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+    </div>
+    <div class="auth-panel__body">
+        <form class="job-form" id="skill-form" method="POST" action="{% url 'add_skill' %}">
+            {% csrf_token %}
+
+            <div>
+                <label class="eyebrow">Bereich auswählen</label>
+                <div>{{ skill_form.kategorie_filter }}</div>
+            </div>
+
+            <div id="subcat-wrapper" style="display: none; margin-top: 1rem;">
+                <label class="eyebrow">Unterkategorie (Filter)</label>
+                <div>{{ skill_form.unterkategorie_filter }}</div>
+            </div>
+
+            <div id="skill-details-wrapper" style="display: none; margin-top: 1rem;">
+                <div>
+                    <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 0.5rem;">
+                        <label class="eyebrow" style="margin-bottom: 0;">Skill / Kenntnis</label>
+                        <button type="button" class="ghost" style="font-size: 0.75rem; padding: 2px 6px; height: auto; color: var(--primary);" onclick="toggleSkillMode()">
+                            <span id="btn-text-new">+ Neuen Skill anlegen</span>
+                            <span id="btn-text-list" style="display: none;">Zurück zur Liste</span>
+                        </button>
+                    </div>
+
+                    <div id="skill-select-container">
+                        {{ skill_form.skill }}
+                    </div>
+
+                    <div id="skill-input-container" style="display: none;">
+                        {{ skill_form.new_skill_name }}
+                        <small class="muted" style="display: block; margin-top: 4px;">Dieser Skill wird neu in den Katalog aufgenommen.</small>
+                    </div>
+                </div>
+
+                <div style="margin-top: 1rem;">
+                    <label class="eyebrow" style="margin-bottom: 0.5rem;">Niveau / Bewertung</label>
+                    {{ skill_form.skala_wert }}
+                </div>
+
+                <div style="margin-top: 1rem;">
+                    <label class="eyebrow" style="margin-bottom: 0.5rem;">Zertifikatsdatum (optional)</label>
+                    {{ skill_form.ausstellungsdatum }}
+                </div>
+
+                <div class="form-actions" style="margin-top: 1.5rem; display: flex; gap: 1rem; justify-content: flex-end;">
+                    <button type="button" class="ghost" onclick="closeSkillModal()">Abbrechen</button>
+                    <button type="submit" class="primary">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+                        Speichern
+                    </button>
+                </div>
+            </div>
+
+            <p id="skill-loader" class="muted" style="display:none; text-align:center; margin-top:1rem; font-size: 0.85rem;">Lade Katalog...</p>
+        </form>
+    </div>
+</div>
+
+<script>
+    const skillOverlay = document.getElementById('skill-overlay');
+    const skillPanel = document.getElementById('skill-panel');
+
+    function toggleSkillMode() {
+        const selectContainer = document.getElementById('skill-select-container');
+        const inputContainer = document.getElementById('skill-input-container');
+        const btnNew = document.getElementById('btn-text-new');
+        const btnList = document.getElementById('btn-text-list');
+        const skillInput = document.querySelector('input[name="new_skill_name"]');
+        const skillSelect = document.getElementById('skill-select');
+
+        if (selectContainer.style.display === 'none') {
+            selectContainer.style.display = 'block';
+            inputContainer.style.display = 'none';
+            btnNew.style.display = 'inline';
+            btnList.style.display = 'none';
+            skillInput.value = "";
+        } else {
+            selectContainer.style.display = 'none';
+            inputContainer.style.display = 'block';
+            btnNew.style.display = 'none';
+            btnList.style.display = 'inline';
+            if(skillSelect) skillSelect.value = "";
+        }
+    }
+
+    function openSkillModal() {
+        skillOverlay.classList.add('visible');
+        skillPanel.classList.add('visible');
+
+        const details = document.getElementById('skill-details-wrapper');
+        const subWrapper = document.getElementById('subcat-wrapper');
+
+        if(details) details.style.display = 'none';
+        if(subWrapper) subWrapper.style.display = 'none';
+
+        const form = document.getElementById('skill-form');
+        if (form) {
+            const select = form.querySelector('select[name="kategorie_filter"]');
+            if (select) select.value = "";
+            const sub = form.querySelector('select[name="unterkategorie_filter"]');
+            if (sub) {
+                sub.value = "";
+                sub.innerHTML = "";
+            }
+
+            const selCont = document.getElementById('skill-select-container');
+            if(selCont) selCont.style.display = 'block';
+
+            const inpCont = document.getElementById('skill-input-container');
+            if(inpCont) inpCont.style.display = 'none';
+
+            const btnNew = document.getElementById('btn-text-new');
+            if(btnNew) btnNew.style.display = 'inline';
+
+            const btnList = document.getElementById('btn-text-list');
+            if(btnList) btnList.style.display = 'none';
+
+            const input = form.querySelector('input[name="new_skill_name"]');
+            if(input) input.value = "";
+        }
+    }
+
+    function closeSkillModal() {
+        skillOverlay.classList.remove('visible');
+        skillPanel.classList.remove('visible');
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+        const form = document.getElementById('skill-form');
+
+        if (!form) {
+            console.error("PANIC: Formular #skill-form nicht gefunden!");
+            return;
+        }
+
+        const catSelect = form.querySelector('select[name="kategorie_filter"]');
+        const subSelect = form.querySelector('select[name="unterkategorie_filter"]');
+        const skillSelect = form.querySelector('select[name="skill"]');
+        const scaleSelect = form.querySelector('select[name="skala_wert"]');
+
+        const detailsWrapper = document.getElementById('skill-details-wrapper');
+        const subWrapper = document.getElementById('subcat-wrapper');
+        const loader = document.getElementById('skill-loader');
+
+        function loadData() {
+            const catId = catSelect.value;
+            const subId = subSelect ? subSelect.value : '';
+
+            if (!catId) {
+                detailsWrapper.style.display = 'none';
+                if(subWrapper) subWrapper.style.display = 'none';
+                return;
+            }
+
+            loader.style.display = 'block';
+
+            let url = "{% url 'get_skills_options' %}?kategorie_id=" + catId;
+            if(subId) url += "&unterkategorie_id=" + subId;
+
+            fetch(url)
+                .then(response => {
+                    if (!response.ok) throw new Error("Server Fehler");
+                    return response.json();
+                })
+                .then(data => {
+                    if (subSelect && !subId) {
+                        subSelect.innerHTML = '<option value="">-- Alle --</option>';
+                        if (data.unterkategorien && data.unterkategorien.length > 0) {
+                            subWrapper.style.display = 'block';
+                            data.unterkategorien.forEach(sub => {
+                                const opt = document.createElement('option');
+                                opt.value = sub.id;
+                                opt.textContent = sub.name;
+                                subSelect.appendChild(opt);
+                            });
+                        } else {
+                            subWrapper.style.display = 'none';
+                        }
+                    }
+
+                    if (skillSelect) {
+                        skillSelect.innerHTML = '<option value="">Bitte wählen...</option>';
+                        data.skills.forEach(s => {
+                            const opt = document.createElement('option');
+                            opt.value = s.id;
+                            opt.textContent = s.name;
+                            skillSelect.appendChild(opt);
+                        });
+                    }
+
+                    if (scaleSelect && (!subId || scaleSelect.options.length <= 1)) {
+                        scaleSelect.innerHTML = '<option value="">Keine Angabe</option>';
+                        if(data.skala_werte) {
+                            data.skala_werte.forEach(sw => {
+                                const opt = document.createElement('option');
+                                opt.value = sw.id;
+                                opt.textContent = sw.bezeichnung;
+                                scaleSelect.appendChild(opt);
+                            });
+                        }
+                    }
+
+                    loader.style.display = 'none';
+                    detailsWrapper.style.display = 'block';
+                })
+                .catch(error => {
+                    console.error("Fehler:", error);
+                    loader.style.display = 'none';
+                });
+        }
+
+        if (catSelect) {
+            catSelect.addEventListener('change', function() {
+                if(subSelect) {
+                    subSelect.value = "";
+                    subSelect.innerHTML = "";
+                }
+                loadData();
+            });
+        }
+
+        if (subSelect) {
+            subSelect.addEventListener('change', function() {
+                loadData();
+            });
+        }
+    });
+</script>

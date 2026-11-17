@@ -1,0 +1,143 @@
+<div id="project-overlay" class="auth-overlay" onclick="closeProjectModal()"></div>
+<div id="project-panel" class="auth-panel" style="width: min(500px, 90vw);">
+    <div class="auth-panel__header">
+        <h3 id="project-modal-title">Projekt / Aufgabe hinzufügen</h3>
+        <button class="ghost" onclick="closeProjectModal()">✕</button>
+    </div>
+    <div class="auth-panel__body">
+        <form class="job-form" id="project-form" method="POST" action="">
+            {% csrf_token %}
+            <div>
+                <label class="eyebrow" style="margin-bottom: 0.5rem;">Titel</label>
+                <input type="text" name="titel" required placeholder="z.B. Bachelorarbeit oder Teamleitung">
+            </div>
+            <div style="margin-top: 1rem;">
+                <label class="eyebrow" style="margin-bottom: 0.5rem;">Beschreibung</label>
+                <textarea name="beschreibung" rows="4" placeholder="Beschreibe kurz die Tätigkeit..."></textarea>
+            </div>
+            <div class="form-actions" style="margin-top: 1.5rem;">
+                <button type="button" class="ghost" onclick="closeProjectModal()">Abbrechen</button>
+                <button type="submit" class="primary">Speichern</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="proj-skill-overlay" class="auth-overlay" onclick="closeProjSkillModal()"></div>
+<div id="proj-skill-panel" class="auth-panel" style="width: min(500px, 90vw);">
+    <div class="auth-panel__header">
+        <h3>Skill zu Projekt hinzufügen</h3>
+        <button class="ghost" onclick="closeProjSkillModal()">✕</button>
+    </div>
+    <div class="auth-panel__body">
+        <form class="job-form" id="proj-skill-form" method="POST" action="">
+            {% csrf_token %}
+
+            <div style="margin-bottom: 1rem;">
+                 <label class="eyebrow">Kategorie</label>
+                 {% if skill_form %}
+                    {{ skill_form.kategorie_filter }}
+                 {% else %}
+                    <select class="model-select" name="kategorie_filter" id="ps-cat-select">
+                        <option value="">Bitte wählen...</option>
+                        {% for kat in dropdown_kategorien %}
+                            <option value="{{ kat.id }}">{{ kat.name }}</option>
+                        {% endfor %}
+                    </select>
+                 {% endif %}
+            </div>
+
+            <div id="ps-details" style="display:none;">
+                <div style="margin-bottom: 1rem;">
+                    <label class="eyebrow">Skill</label>
+                    <select class="model-select" name="skill" id="ps-skill-select"></select>
+                </div>
+                <div style="margin-bottom: 1rem;">
+                    <label class="eyebrow">Niveau</label>
+                    <select class="model-select" name="skala_wert" id="ps-scale-select"></select>
+                </div>
+                <div style="margin-bottom: 1rem;">
+                    <label class="eyebrow">Kontext (Optional)</label>
+                    <input type="text" name="kontext" placeholder="z.B. Frontend mit React gebaut">
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="primary">Hinzufügen</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    const projOverlay = document.getElementById('project-overlay');
+    const projPanel = document.getElementById('project-panel');
+    const projForm = document.getElementById('project-form');
+
+    function openProjectModal(stationId) {
+        projOverlay.classList.add('visible');
+        projPanel.classList.add('visible');
+        let url = "{% url 'add_leistung' 0 %}".replace('0', stationId);
+        projForm.action = url;
+    }
+
+    function closeProjectModal() {
+        projOverlay.classList.remove('visible');
+        projPanel.classList.remove('visible');
+    }
+
+    const psOverlay = document.getElementById('proj-skill-overlay');
+    const psPanel = document.getElementById('proj-skill-panel');
+    const psForm = document.getElementById('proj-skill-form');
+
+    const psCat = document.querySelector('#proj-skill-form select[name="kategorie_filter"]') || document.getElementById('ps-cat-select');
+    const psDetails = document.getElementById('ps-details');
+
+    function openProjSkillModal(leistungId) {
+        psOverlay.classList.add('visible');
+        psPanel.classList.add('visible');
+        let url = "{% url 'add_project_skill' 0 %}".replace('0', leistungId);
+        psForm.action = url;
+        psDetails.style.display = 'none';
+        if(psCat) psCat.value = "";
+    }
+
+    function closeProjSkillModal() {
+        psOverlay.classList.remove('visible');
+        psPanel.classList.remove('visible');
+    }
+
+    if(psCat) {
+        psCat.addEventListener('change', function() {
+            const catId = this.value;
+            if(!catId) {
+                psDetails.style.display = 'none';
+                return;
+            }
+
+            const selectedText = this.options[this.selectedIndex].text.toLowerCase();
+            if(selectedText.includes('soft') || selectedText.includes('persönlich')) {
+                alert("Soft Skills werden normalerweise global angelegt, nicht pro Projekt.");
+            }
+
+            fetch(`{% url 'get_skills_options' %}?kategorie_id=${catId}`)
+            .then(res => res.json())
+            .then(data => {
+                const sSel = document.getElementById('ps-skill-select');
+                const scSel = document.getElementById('ps-scale-select');
+
+                sSel.innerHTML = '<option value="">Skill wählen...</option>';
+                data.skills.forEach(s => {
+                   sSel.innerHTML += `<option value="${s.id}">${s.name}</option>`;
+                });
+
+                scSel.innerHTML = '<option value="">Level wählen...</option>';
+                data.skala_werte.forEach(sw => {
+                   scSel.innerHTML += `<option value="${sw.id}">${sw.bezeichnung}</option>`;
+                });
+
+                psDetails.style.display = 'block';
+            })
+            .catch(err => console.error(err));
+        });
+    }
+</script>

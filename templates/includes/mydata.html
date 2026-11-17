@@ -1,0 +1,445 @@
+<style>
+    .station-card {
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .station-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 1rem;
+        margin-bottom: 0.5rem;
+    }
+    .station-title {
+        margin: 0;
+        font-size: 1.05rem;
+        font-weight: 600;
+        color: var(--text-color);
+        line-height: 1.3;
+    }
+    .station-actions {
+        display: flex;
+        gap: 0.5rem;
+        flex-shrink: 0;
+    }
+    .action-icon-btn {
+        background: transparent;
+        border: none;
+        color: var(--muted-dark);
+        padding: 4px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: color 0.2s, background 0.2s;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .action-icon-btn:hover {
+        background: var(--bg-muted);
+        color: var(--primary);
+    }
+    .action-icon-btn.danger:hover {
+        color: #ef4444;
+        background: #fee2e2;
+    }
+    .station-details {
+        font-size: 0.9rem;
+        color: var(--muted-dark);
+        margin-bottom: 0.8rem;
+    }
+    .projects-container {
+        margin-top: 1.5rem;
+        background: var(--bg-muted, #f8fafc);
+        border-radius: 8px;
+        padding: 1.25rem;
+        border: 1px solid rgba(0,0,0,0.05);
+    }
+    .project-item {
+        position: relative;
+        padding-bottom: 1rem;
+        margin-bottom: 1rem;
+        border-bottom: 1px solid rgba(0,0,0,0.06);
+    }
+    .project-item:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+        margin-bottom: 0;
+    }
+    .project-title {
+        font-weight: 600;
+        font-size: 0.95rem;
+        margin-bottom: 0.2rem;
+        color: var(--text-color);
+    }
+    .skill-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: 6px;
+        padding: 4px 10px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        color: var(--text-color);
+        box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+    }
+    .skill-chip .level-badge {
+        background: var(--primary);
+        color: white;
+        font-size: 0.7rem;
+        padding: 1px 5px;
+        border-radius: 4px;
+        font-weight: 600;
+    }
+    .skill-chip .remove-x {
+        color: #cbd5e1;
+        text-decoration: none;
+        font-size: 1rem;
+        line-height: 1;
+        margin-left: 2px;
+        transition: color 0.2s;
+    }
+    .skill-chip .remove-x:hover {
+        color: #ef4444;
+    }
+    .add-chip-btn {
+        background: transparent;
+        border: 1px dashed #cbd5e1;
+        color: var(--muted-dark);
+        border-radius: 6px;
+        padding: 4px 10px;
+        font-size: 0.8rem;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    .add-chip-btn:hover {
+        border-color: var(--primary);
+        color: var(--primary);
+    }
+</style>
+
+<section class="page" data-page="formular">
+
+    {% include "includes/add_leistung.html" %}
+
+    <div class="hero">
+        <div>
+            <h1>Persönliche Daten, Erfahrungen & Kompetenzen</h1>
+            <p class="subtitle">Verwalte hier deinen Lebenslauf.</p>
+        </div>
+    </div>
+
+    <div class="dashboard-sections">
+        <form action="{% url 'update_basisdaten' %}" method="POST" class="panel">
+            {% csrf_token %}
+            <input type="hidden" name="form_type" value="basisdaten">
+            <header>
+                <h2>Basisdaten</h2>
+                <button type="submit" class="primary" style="padding: 0.5rem 1rem;">Speichern</button>
+            </header>
+            <div style="padding-bottom: 1rem; border-bottom: 1px solid var(--border);">
+                <strong>Persönliche Daten</strong>
+                <div style="display: flex; gap: 1rem; margin: 0.8rem 0 0.8rem 0;">
+                    <input type="text" name="vorname" value="{{ form.vorname.value|default_if_none:'' }}" placeholder="Vorname">
+                    <input type="text" name="nachname" value="{{ form.nachname.value|default_if_none:'' }}" placeholder="Nachname">
+                </div>
+                <div style="display: flex; gap: 1rem; margin: 0.8rem 0 0.8rem 0;">
+                    <select class="model-select" name="familienstand">
+                        <option value="" disabled {% if not form.familienstand.value %}selected{% endif %} hidden>Familienstand</option>
+                        <option value="" {% if not form.familienstand.value %}selected{% endif %}>keine Angabe</option>
+                        <option value="ledig" {% if form.familienstand.value == "ledig" %}selected{% endif %}>ledig</option>
+                        <option value="verheiratet" {% if form.familienstand.value == "verheiratet" %}selected{% endif %}>verheiratet</option>
+                    </select>
+                    <input type="date" name="geburtsdatum" value="{{ form.geburtsdatum.value|date:'Y-m-d'|default_if_none:'' }}" placeholder="Geburtsdatum">
+                </div>
+            </div>
+            <div style="padding-bottom: 1rem;">
+                <strong>Kontakt & Standort</strong>
+                <div style="display: flex; gap: 1rem; margin: 0.8rem 0 0.8rem 0;">
+                    <input type="email" name="email" value="{{ form.email.value|default_if_none:'' }}" placeholder="E-Mail Adresse">
+                    <input type="text" name="telefonnummer" value="{{ form.telefonnummer.value|default_if_none:'' }}" placeholder="Telefon (optional)">
+                </div>
+                <div style="display: grid; grid-template-columns: 1.5fr 0.5fr; gap: 1rem; align-items: center; margin: 0.8rem 0 0.8rem 0;">
+                    <input type="text" name="strasse" value="{{ form.strasse.value|default_if_none:'' }}" placeholder="Straße">
+                    <input type="text" name="hausnummer" value="{{ form.hausnummer.value|default_if_none:'' }}" placeholder="Hausnummer">
+                </div>
+                <div style="display: grid; grid-template-columns: 1.5fr 0.5fr; gap: 1rem; align-items: center; margin: 0.8rem 0 0.8rem 0;">
+                    <input type="text" name="wohnort" value="{{ form.wohnort.value|default_if_none:'' }}" placeholder="Stadt">
+                    <input type="text" name="plz" value="{{ form.plz.value|default_if_none:'' }}" placeholder="PLZ">
+                </div>
+            </div>
+        </form>
+
+        <form action="{% url 'update_basisdaten' %}" method="POST" enctype="multipart/form-data" class="panel">
+            {% csrf_token %}
+            <input type="hidden" name="form_type" value="profilbild">
+            <header>
+                <h2>Bewerbungsfoto</h2>
+                <button type="submit" class="primary" style="padding: 0.5rem 1rem;">Speichern</button>
+            </header>
+            <div style="display: flex; align-items: center; gap: 1rem; margin-top: 1rem;">
+                <button type="button" class="primary" onclick="document.getElementById('real-file-input').click()">📂 Datei auswählen</button>
+                <span id="file-name" class="muted-dark" style="font-size: 0.9rem;">
+                    {% if foto_form.instance.bewerbungsfoto %}Aktuelles Foto vorhanden{% else %}Keine Datei gewählt{% endif %}
+                </span>
+                <input type="file" id="real-file-input" name="bewerbungsfoto" accept="image/*" class="sr-only" onchange="previewImage(event)">
+            </div>
+            <div style="margin-top: 1.5rem;">
+                {% if foto_form.instance.bewerbungsfoto %}
+                    <img id="image-previewx" src="{{ foto_form.instance.bewerbungsfoto.url }}" alt="Dein Profilbild" style="width: 30rem; height: auto; border-radius: 1rem; border: 1px solid var(--border); display: block; object-fit: cover;">
+                {% else %}
+                    <img id="image-preview" src="https://placehold.co/600x400/e2e8f0/475569?text=Kein+Bild" alt="Platzhalter" style="width: 30rem; height: auto; border-radius: 1rem; border: 1px solid var(--border); display: block; object-fit: cover;">
+                {% endif %}
+            </div>
+        </form>
+    </div>
+
+    <div class="panel" style="margin-bottom: 1rem;">
+        <section class="sg-section">
+            <header>
+                <h2 style="margin: 0;">Laufbahn & Erfahrungen</h2>
+                {% include "includes/addstation.html" %}
+            </header>
+
+            {% for gruppe in stationen_gruppiert %}
+                {% with kat_name=gruppe.kategorie.name|lower %}
+
+                <div class="module-card collapsed" style="margin-bottom: 1rem; margin-top: 0.5rem; padding: 0.5rem;">
+
+                    <div class="module-card__header" style="cursor: pointer;" onclick="this.parentElement.classList.toggle('collapsed')">
+                        <div class="module-card__title">
+                            <strong style="font-size: 1.1rem;">{{ gruppe.kategorie.name }}</strong>
+                            <span class="muted-dark" style="font-size: 0.8rem; margin-left: 0.5rem;">({{ gruppe.count }})</span>
+                        </div>
+                        <button class="collapse-btn" style="pointer-events: none;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                        </button>
+                    </div>
+
+                    <div class="module-card__body station-grid" style="padding: 1rem;">
+                        {% for station in gruppe.stationen %}
+                            <div class="station-card">
+                                <div class="station-header">
+                                    <div style="flex: 1;">
+                                        {% if "beruf" in kat_name or "ehrenamt" in kat_name %}
+                                            <h4 class="station-title">{{ station.position }}</h4>
+                                        {% else %}
+                                            <h4 class="station-title">{{ station.institution }}</h4>
+                                        {% endif %}
+
+                                        <div style="color: var(--accent2)">
+                                            {{ station.beginn|date:"m.Y" }} – {% if station.ende %}{{ station.ende|date:"m.Y" }}{% else %}Heute{% endif %}
+                                        </div>
+                                    </div>
+
+                                    <div class="station-actions">
+                                        <button type="button" class="action-icon-btn" onclick="openEditModal({{ station.id }})" title="Bearbeiten">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                                        </button>
+                                        <a href="{% url 'delete_station' station.id %}" class="action-icon-btn danger" onclick="return confirm('Wirklich löschen?')" title="Löschen">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                                        </a>
+                                    </div>
+                                </div>
+
+                                <div class="station-details">
+                                    {% if "akademisch" in kat_name or "studium" in kat_name %}
+                                        {% if station.studiengang %}<span style="color: var(--text-color); font-weight: 500;">{{ station.studiengang }}</span><br>{% endif %}
+                                        {% if station.abschluss_grad %}Abschluss: {{ station.abschluss_grad }}{% endif %}
+                                    {% elif "beruf" in kat_name or "arbeit" in kat_name %}
+                                        <span>bei {{ station.institution }}</span>
+                                    {% else %}
+                                        <span>{{ station.position }}</span>
+                                    {% endif %}
+                                </div>
+
+                                {% if station.beschreibung_station %}
+                                    <p style="font-size: 0.95rem; line-height: 1.6; color: var(--text-color); margin: 0; white-space: pre-line;">{{ station.beschreibung_station }}</p>
+                                {% endif %}
+
+                                <div class="projects-container">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                                        <span style="font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted-dark);">
+                                            Projekte & Erfolge
+                                        </span>
+                                        <button class="ghost" style="font-size: 0.8rem; padding: 4px 8px; height: auto;" onclick="openProjectModal({{ station.id }})">
+                                            + Projekt
+                                        </button>
+                                    </div>
+
+                                    {% if station.leistungen.all %}
+                                        <div style="display: flex; flex-direction: column;">
+                                            {% for leistung in station.leistungen.all %}
+                                                <div class="project-item">
+                                                    <a href="{% url 'delete_leistung' leistung.id %}" onclick="return confirm('Projekt löschen?')"
+                                                       style="float: right; color: var(--muted-dark); opacity: 0.5; font-size: 1.2rem; line-height: 1; text-decoration: none; margin-left: 10px;">
+                                                        &times;
+                                                    </a>
+
+                                                    <div class="project-title">
+                                                        {{ leistung.titel }}
+                                                    </div>
+
+                                                    {% if leistung.beschreibung %}
+                                                        <div style="font-size: 0.9rem; color: var(--muted-dark); margin-bottom: 0.6rem; line-height: 1.4;">
+                                                            {{ leistung.beschreibung }}
+                                                        </div>
+                                                    {% endif %}
+
+                                                    <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem;">
+                                                        {% for l_skill in leistung.leistungseintraegeskills_set.all %}
+                                                            <div class="skill-chip">
+                                                                <span>{{ l_skill.skill.name }}</span>
+                                                                <a href="{% url 'delete_project_skill' l_skill.id %}" class="remove-x" title="Skill entfernen">×</a>
+                                                            </div>
+                                                        {% endfor %}
+
+                                                        <button onclick="openProjSkillModal({{ leistung.id }})" class="add-chip-btn" title="Skill hinzufügen">
+                                                            + Skill
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+                                    {% else %}
+                                        <div style="text-align: center; padding: 0.5rem; border: 1px dashed var(--border); border-radius: 6px;">
+                                            <small class="muted-dark">Noch keine Projekte eingetragen.</small>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                {% endwith %}
+                {% empty %}
+                <div class="panel" style="text-align: center; padding: 3rem;">
+                    <p class="muted-dark">Du hast noch keine Einträge im Lebenslauf.</p>
+                    <button class="primary" onclick="openAddModal()" style="margin-top: 1rem;">Ersten Eintrag erstellen</button>
+                </div>
+            {% endfor %}
+        </section>
+    </div>
+
+    <div class="panel">
+         <section class="sg-section">
+             <header>
+                <h2>Kompetenzen</h2>
+                {% include "includes/addskill.html" %}
+            </header>
+
+            {% for kategorie_name, skills in kompetenzen_gruppiert.items %}
+            <div class="module-card collapsed" style="margin-bottom: 1rem; padding: 0.5rem;">
+                <div class="module-card__header" style="cursor: pointer;" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <div class="module-card__title">
+                        <strong style="font-size: 1.1rem;">{{ kategorie_name }}</strong>
+                        <span class="muted-dark" style="font-size: 0.8rem; margin-left: 0.5rem;">({{ skills|length }})</span>
+                    </div>
+                    <button class="collapse-btn" style="pointer-events: none;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg></button>
+                </div>
+                <div class="module-card__body" style="padding: 1rem;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 1rem;">
+
+                        {% for group in skills %}
+                        <div class="station-card" style="margin-bottom: 0; padding: 1.25rem; display: flex; flex-direction: column; gap: 0.5rem; position: relative;">
+
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                                <h4 style="margin: 0; font-size: 1.1rem; font-weight: 600; color: var(--text-color); line-height: 1.2;">
+                                    {{ group.skill_name }}
+                                </h4>
+
+                                <div style="display: flex; gap: 4px;">
+                                    {% for cert in group.cert_entries %}
+                                        <a href="{{ cert.delete_url }}" class="action-icon-btn danger" onclick="return confirm('Skill unwiderruflich löschen?')" title="Zertifikat/Skill löschen">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                                        </a>
+                                    {% endfor %}
+                                    {% for soft in group.soft_entries %}
+                                         <a href="{{ soft.delete_url }}" class="action-icon-btn danger" onclick="return confirm('Soft Skill löschen?')" title="Soft-Skill löschen">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                                        </a>
+                                    {% endfor %}
+                                </div>
+                            </div>
+
+                        {% if group.best_rating %}
+                            <div style=" line-height: 1.3;">
+
+                                {% if group.rating_stars %}
+                                    <div style="font-size: 0.8rem; margin-left: -2px; margin-top: -2px; margin-bottom: 2px;">
+                                        {{ group.rating_stars }}
+                                    </div>
+                                    <span style="font-size: 0.9rem; font-weight: 500; color: var(--text-color); display: block;">
+                                        {{ group.rating_text }}
+                                    </span>
+
+                                {% else %}
+                                    <span style="font-size: 0.9rem; font-weight: 500; color: var(--text-color);">
+                                        {{ group.rating_text }}
+                                    </span>
+                                {% endif %}
+
+                            </div>
+                        {% endif %}
+
+                            {% if group.soft_entries %}
+                                {% for soft in group.soft_entries %}
+                                    {% if soft.begruendung %}
+                                        <div style="font-style: italic; color: var(--muted-dark); font-size: 0.9rem; line-height: 1.4;">
+                                            "{{ soft.begruendung }}"
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+                            {% endif %}
+
+                            {% if group.projects %}
+                                <div class="projects-container" style="margin-top: 0.3rem;">
+                                    <div style="font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted-dark); margin-bottom: 0.5rem;">
+                                        Projekte
+                                    </div>
+
+                                    <ul style="list-style: none; padding: 0; margin: 0;">
+                                        {% for proj in group.projects %}
+                                        <li style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem; padding-bottom: 0.5rem; border-bottom: 1px dashed #e2e8f0;">
+                                            <div style="padding-right: 0.5rem;">
+                                                <div style="font-weight: 600; font-size: 0.85rem; color: var(--text-color);">{{ proj.titel }}</div>
+                                                {% if proj.kontext %}
+                                                    <div style="font-size: 0.8rem; color: var(--muted-dark); line-height: 1.3;">{{ proj.kontext }}</div>
+                                                {% endif %}
+                                            </div>
+
+                                            <a href="{{ proj.delete_url }}"
+                                               style="color: #cbd5e1; font-size: 1.2rem; line-height: 1; text-decoration: none; transition: color 0.2s;"
+                                               onmouseover="this.style.color='#ef4444'"
+                                               onmouseout="this.style.color='#cbd5e1'"
+                                               onclick="return confirm('Soll der Skill aus diesem Projekt entfernt werden?')"
+                                               title="Aus Projekt entfernen">
+                                                &times;
+                                            </a>
+                                        </li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            {% endif %}
+
+                        </div>
+                        {% endfor %}
+
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="panel" style="text-align: center; padding: 2rem;">
+                <p class="muted-dark">Noch keine Kompetenzen eingetragen.</p>
+            </div>
+            {% endfor %}
+        </section>
+    </div>
+</section>

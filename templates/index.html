@@ -1,0 +1,563 @@
+{% load static %}
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ApplAI</title>
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    <link rel="stylesheet" href="{% static 'app.css' %}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bitter:wght@400;700&family=Josefin+Sans:wght@400;700&family=Open+Sans:wght@400;700&family=Oswald:wght@400;700&family=Quicksand:wght@400;700&family=Roboto:wght@400;700&family=Saira:wght@400;700&family=Ubuntu:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+<header class="app-header">
+    <div class="logo">✒️ APPLAI </div>
+    <div class="nav-wrapper" id="nav-wrapper">
+        <nav class="nav" id="main-nav">
+            <a href="#" data-page-link="dashboard">Dashboard</a>
+            <a href="#" data-page-link="formular">Meine Daten</a>
+            <a href="#" data-page-link="anschreiben">Anschreiben</a>
+            <a href="#" data-page-link="bewerbungsfoto">Bewerbungsfoto</a>
+            <a href="#" data-page-link="lebenslauf">Lebenslauf</a>
+            <a href="#" data-page-link="archiv">Archiv</a>
+            <a href="#" data-page-link="settings">Einstellungen</a>
+        </nav>
+        <div class="session-actions">
+            <button class="primary" id="open-auth">Login / Register</button>
+            <div class="profile-menu hidden" id="profile-menu">
+                <button class="ghost profile-trigger" id="profile-trigger" type="button" aria-label="Profilmenü öffnen">
+                    <span class="profile-avatar" id="profile-avatar">👤</span>
+                    <span class="profile-caret" aria-hidden="true">▾</span>
+                    <span id="session-info" class="session-name sr-only"></span>
+                </button>
+                <div class="profile-dropdown" id="profile-dropdown">
+                    <button class="profile-item" type="button" data-page-link="formular">Mein Profil</button>
+                    <button class="profile-item" type="button" data-profile-action="settings">Einstellungen</button>
+                    <a href="/admin/" class="profile-item hidden" id="profile-admin">Admin</a>
+                    <button class="profile-item" type="button" id="profile-logout">Logout</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <button class="burger" id="burger" aria-label="Navigation öffnen">
+        <span></span><span></span><span></span>
+    </button>
+</header>
+<div class="nav-overlay" id="nav-overlay"></div>
+
+<main>
+    <section class="page" style="margin: 0; padding-bottom: 0;" data-page="dashboard">
+        <div class="landing-hero" style="padding-top: 0;">
+            <div class="features-grid" style="grid-column: 1 / -1; ">
+                <div class="landing-copy" >
+                    <h1>Perfekte Bewerbung mit KI</h1>
+                    <p class="subtitle" style="max-width: 65vw; margin-top: 0;">Eine gute Bewerbung ist mehr als nur fehlerfreies Deutsch – sie muss zeigen, warum genau Du perfekt für den Job bist. <br> KI ist dabei eine riesige Hilfe, aber oft weiß man bei den großen Anbietern nicht, was mit den eigenen Daten passiert. <br> <br> Wir machen das anders: Unsere App nutzt smarte KI-Modelle, die direkt auf deinem Gerät laufen. Wir setzen auf lokale Modelle, die nur für dich arbeiten. <br> Kein Cloud-Upload, kein Datensammeln, kein KI-Training.</p>
+                    <div class="landing-actions" style="margin-top: 1rem;">
+                        <button class="ghost" data-page-link="anschreiben">Anschreiben starten</button>
+                        <button class="ghost" data-page-link="archiv">Archiv öffnen</button>
+                    </div>
+                </div>
+            </div>
+            <div class="features-grid" style="grid-column: 1 / -1;">
+                <div class="hero-card">
+                <h3>Anschreiben</h3>
+                <p>Zeig Unternehmen, wer du bist. Wir helfen dir, ein Anschreiben zu formulieren, das deine Stärken perfekt mit dem Job matcht.</p>
+                <ul>
+                    <li>Klare Gliederung: Strukturierter inhaltlicher Aufbau mit Verfeinerungs-Optionen.</li>
+                    <li>LLM-Chat: Dein Assistent für Brainstorming, Q&A und bessere Formulierungen.</li>
+                    <li>Editor mit Formatierung: Bring den Text in Form und kopiere das Ergebnis mit einem Klick.</li>
+                    <li>Das perfekte Match: Wir gleichen die Job-Anforderungen mit deinen Skills ab und formulieren im Text genau, warum du für die Stelle geeignet bist.</li>
+                </ul>
+            </div>
+                <div class="hero-card">
+                <h3>Bewerbungsfoto</h3>
+                <p>Nicht das passende Bewerbungsfoto zur Hand? Kein Problem, mach aus einem einfachen Portrait ein professionelles Bewerbungsfoto.
+                <ul>
+                    <li>Perfektes Licht auf Knopfdruck: Unsere Technologie sorgt automatisch für eine hochwertige Studio-Ausleuchtung.</li>
+                    <li>Fokus ganz auf dich: Störende Hintergründe werden clean und neutralisiert.</li>
+                    <li>Sofort einsatzbereit: Foto hochladen, kurz warten, fertiges Bild für deine Bewerbung erhalten.</li>
+                </ul>
+            </div>
+            <div class="hero-card">
+                <div>
+                    <h3>Lebenslauf</h3>
+                    <p>Trage deine Daten nicht nur für dein Anschreiben ein, sondern erstelle auch mit ein paar Clicks einen schönen Lebenslauf, der dein Skillset ins beste Licht setzt.</p>
+                    <ul>
+                        <li>Einfache Erstellung per Klick: Direkter PDF-Export</li>
+                        <li>Optimiert für KI-Recruiting-Tools: Damit deine Bewerbung nicht aussortiert, sondern gefunden wird.</li>
+                        <li>Skills mit Kontext: Verknüpfe Fähigkeiten direkt mit Projekten, Stationen und deinem Level.</li>
+                    </ul>
+                </div>
+            </div>
+            </div>
+
+            </div>
+        </div>
+    </section>
+
+    <section class="page active" data-page="anschreiben">
+        <div class="hero">
+            <h1>Anschreiben planen & iterieren</h1>
+            <p class="subtitle">Starte mit Strukturbausteinen, erfasse den Zieljob und sammle Impulse in der Chat-Box. Rechts entsteht dein Entwurf – mit oder ohne Login speicherbar.</p>
+        </div>
+        <div class="letter-layout" style="height: 100%;">
+            <div class="letter-left">
+                <section class="module-card collapsible" data-collapse-id="job" >
+                    <div class="module-card__header">
+                        <div class="module-card__title">
+                            <h2>Jobdaten</h2>
+                        </div>
+                        <button type="button" class="collapse-btn" data-collapse-toggle="job">
+                            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 8l4 4 4-4" />
+                            </svg>
+                            Jobdaten
+                        </button>
+                    </div>
+                    <div class="module-card__body" style="min-height: 55%;">
+                        <form id="assistant-form" class="job-form">
+                            <label>Jobtitel <input name="job_title" required placeholder="Werkstudent KI"></label>
+                            <label>Firma <input name="company" required placeholder="ApplAI GmbH"></label>
+                            <label>Jobbeschreibung <textarea name="job_description" rows="6" required></textarea></label>
+                            <input type="hidden" name="tone" value="formal" id="tone-input">
+                            <div class="form-actions">
+                                <button type="button" class="ghost" id="fill-example">Beispiel</button>
+                                <button type="submit">Anschreiben generieren</button>
+                            </div>
+                        </form>
+                    </div>
+                </section>
+
+                <section class="module-card structure-box collapsible" data-collapse-id="structure" style="margin-bottom: 2rem;">
+                    <div class="module-card__header">
+                        <div class="module-card__title">
+                            <h2>Struktur</h2>
+                        </div>
+                        <button type="button" class="collapse-btn" data-collapse-toggle="structure">
+                            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 8l4 4 4-4" />
+                            </svg>
+                            Abschnitte
+                        </button>
+                    </div>
+                    <div class="module-card__body">
+                        <div class="structure-links" id="structure-links">
+                            <button data-structure="Einleitung" class="active">Einleitung</button>
+                            <button data-structure="Hauptteil">Hauptteil</button>
+                            <button data-structure="Schluss">Schluss</button>
+                        </div>
+                        <p id="structure-note" class="muted" style="font-size: 0.85rem;">
+                            Fokus: Einleitung – persönlicher Einstieg & Bezug zur Firma.
+                        </p>
+
+                        <div class="structure-output">
+                            <label class="checkbox-wrapper">
+                                <input type="checkbox" id="structure-lock">
+                                <span>Diesen Abschnitt behalten / sperren</span>
+                            </label>
+                            <textarea id="structure-content-display" rows="9" placeholder="Hier erscheint der generierte Text..."></textarea>
+                        </div>
+                    </div>
+                </section>
+            </div>
+            <div class="letter-right" >
+                <div class="letter-output module-card">
+                    <div class="editor-toolbar" >
+                        <div>
+                            <h2>Anschreiben Editor</h2>
+                        </div>
+                        <div class="editor-toolbar__actions" >
+                            <button class="ghost" id="undo-btn" title="Rückgängig (Strg+Z)" disabled>↩</button>
+                            <button class="ghost" id="redo-btn" title="Wiederherstellen (Strg+Y)" disabled>↪</button>
+                            <div class="separator" style="width: 1px; height: 40px; background: #ddd; margin: 0 8px;"></div>
+                            <button class="ghost" id="copy-editor">Text kopieren</button>
+                        </div>
+                    </div>
+                    <div id="assistant-editor" class="editor-area" contenteditable="true" data-placeholder="Hier erscheint dein Anschreiben. Nutze den Chat oder bearbeite den Text direkt."></div>
+                </div>
+
+                <section class="module-card chat-card" style="margin-bottom: 1.5rem;">
+                    <div class="module-card__header">
+                        <div>
+                            <h2>Chat</h2>
+                        </div>
+                        <div class="chat-card__meta">
+                            <span class="status-dot"></span>
+                            <span>offline</span>
+                        </div>
+                    </div>
+                    <div class="chat-thread" id="chat-thread">
+                        <div class="chat-message system">Noch keine Nachrichten.</div>
+                    </div>
+                    <div class="chat-input-row">
+                        <textarea id="chat-box-input" rows="2" style="margin-bottom: 0.3rem;" placeholder="Schreibe deine Nachricht..."></textarea>
+                        <button class="primary chat-send" id="chat-send" title="Senden">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width: 20px; height: 20px;">
+                                <line x1="22" y1="2" x2="11" y2="13"></line>
+                                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                            </svg>
+                        </button>
+                    </div>
+                </section>
+
+            </div> </div>
+        </section>
+
+<section class="page" data-page="bewerbungsfoto">
+    <div class="hero">
+        <div>
+            <h1>Portrait hochladen & als Bewerbungsfoto rendern</h1>
+            <p class="subtitle">ComfyUI sorgt für Studio-Licht, neutralen Hintergrund und einen klaren Look. Lade ein Portrait hoch und erhalte ein fertiges Bewerbungsfoto.</p>
+        </div>
+    </div>
+
+    <div class="dashboard-sections">
+
+        <div style="grid-column: 1 / -1; ">
+
+            <div class="panel">
+                <form id="photo-upload-form" style="height: 100%; display: flex; flex-direction: column;">
+                    <header>
+                        <h2>Upload & Vorgaben</h2>
+                        <button type="submit" class="primary" id="photo-submit">Bewerbungsfoto generieren</button>
+                    </header>
+                    <div class="photo-upload" style="flex-grow: 1;">
+                        <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem;">
+                            <button type="button" class="primary" onclick="document.getElementById('photo-file').click()">
+                                📂 Datei auswählen
+                            </button>
+
+                            <span id="photo-file-name" class="muted" style="font-size: 0.9rem;">
+                                Noch kein Foto gewählt
+                            </span>
+
+                            <input
+                                type="file"
+                                id="photo-file"
+                                name="photo"
+                                accept="image/*"
+                                required
+                                style="display: none;"
+                                onchange="document.getElementById('photo-file-name').textContent = this.files[0] ? this.files[0].name : 'Noch kein Foto gewählt'"
+                            >
+                        </div>
+                        <div>
+                            <div>
+                                <strong>Look</strong>
+                                <select id="photo-style" name="style" class="model-select" style="margin: 0.3rem 0 0.8rem -0.1rem; width: 100%;">
+                                    <option value="studio">Studio (neutral)</option>
+                                    <option value="soft">Soft Light</option>
+                                    <option value="outdoor">Outdoor clean</option>
+                                </select>
+                            </div>
+                            <div>
+                                <strong>ComfyUI Checkpoint</strong>
+                                <select style="margin: 0.3rem 0 0.8rem -0.1rem; width: 100%;" id="photo-checkpoint" name="checkpoint" class="model-select">
+                                    <option value="">Server-Standard</option>
+                                </select>
+                            </div>
+                            <div>
+                                <strong>Prompt</strong>
+                                <textarea style="margin: 0.3rem 0 0.8rem -0.1rem; width: 100%;" id="photo-prompt" name="prompt" rows="3">professional corporate portrait, person wearing a simple elegant green blazer, high-end studio lighting, (modern blurred dark blue office background:1.3), soft bokeh, photorealistic, 8k, highly detailed</textarea>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div style="grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+
+            <div class="panel">
+                <header>
+                    <h2>Preview: Original</h2>
+                </header>
+                <div>
+                    <h3 class="muted" style="margin-top: -1.8rem;">Original</h3>
+                    <div class="photo-frame" style="justify-self: center;">
+                        <img id="photo-preview-input" alt="Upload Vorschau" src="https://placehold.co/640x400/e2e8f0/475569?text=Upload+Portrait" style="width: 30vw; height: auto;" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel">
+                <header>
+                    <h2>Preview: Ergebnis</h2>
+                </header>
+                <div>
+                    <h3 class="muted" style="margin-top: -1.8rem;">Ergebnis</h3>
+                    <div class="photo-frame" style="justify-self: center;" id="photo-output-frame">
+                        <div class="photo-placeholder" id="photo-output-placeholder">Noch kein Ergebnis</div>
+                        <img id="photo-preview-output" alt="Bewerbungsfoto" class="hidden" style="width: 30vw; height: auto;" />
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div style="grid-column: 1 / -1; ">
+
+            <div class="panel">
+                <header>
+                    <h2>Voraussetzungen & Anleitung</h2>
+                </header>
+                <div class="photo-upload">
+                    <div>
+                        <div style="margin-bottom: 1rem;">
+                            <strong style="font-size: 1.1rem; display: block;">Vorbereitung (Server)</strong>
+                            <ul class="setup-list">
+                                <li>
+                                    Navigiere zum Ordner <code>ComfyUI/custom_nodes</code> und installiere das ControlNet Aux Paket:
+                                    <code class="terminal-code">git clone https://github.com/Fannovel16/comfyui_controlnet_aux.git</code>
+                                </li>
+                                <li>
+                                    Ebenfalls im Ordner <code>ComfyUI/custom_nodes</code> den CLIPSeg Node installieren:
+                                    <code class="terminal-code">git clone https://github.com/biep/ComfyUI-ClipSeg.git</code>
+                                </li>
+                                <li>
+                                    Wechsle in den Hauptordner <code>ComfyUI</code> und installiere fehlende Python-Pakete:
+                                    <code class="terminal-code">pip install scikit-image opencv-python-headless</code>
+                                </li>
+                                <li>
+                                    Lade das Modell <strong>RealVisXL V5.0</strong> (6.46GB) von <a href="https://civitai.com/models/139562/realvisxl-v50" target="_blank" class="link-highlight">Civitai</a> herunter und speichere es hier:
+                                    <code class="terminal-code">ComfyUI/models/checkpoints/</code>
+                                </li>
+                                <li>
+                                    Lade das <strong>ControlNet Canny SDXL</strong> (2.5GB) von <a href="https://huggingface.co/diffusers/controlnet-canny-sdxl-1.0/blob/main/diffusion_pytorch_model.fp16.safetensors" target="_blank" class="link-highlight">Huggingface</a> herunter und speichere es hier:
+                                    <code class="terminal-code">ComfyUI/models/controlnet/</code>
+                                    <small class="muted-dark" style="display:block; margin-top:4px;">(Datei muss exakt <em>diffusion_pytorch_model.fp16.safetensors</em> heißen)</small>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div>
+                            <strong style="font-size: 1.1rem; display: block;">Anleitung zur Generierung</strong>
+                            <ul class="setup-list">
+                                <li>Stelle sicher, dass in den ComfyUI-Einstellungen der <strong>"Dev Mode"</strong> aktiviert ist.</li>
+                                <li>Lade ein Portrait-Foto hoch (am besten gut ausgeleuchtet).</li>
+                                <li>Wähle unter "Look" den gewünschten Stil (z.B. Studio).</li>
+                                <li>Wähle den Checkpoint <em>RealVisXL</em> aus der Liste.</li>
+                                <li>Klicke auf <strong>"Bewerbungsfoto generieren"</strong> und warte ca. 30-60 Sekunden.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+    {% include "includes/mydata.html" %}
+
+<section class="page" data-page="lebenslauf">
+    <div class="hero">
+        <div>
+            <h1>Individualisierbarer Lebenslauf</h1>
+            <p class="subtitle">Gestalte deinen Lebenslauf individuell, indem du aus verschiedenen Designs, Schriftarten und Farben wählst. Dein fertiges Dokument kannst du anschließend direkt als PDF herunterladen.</p>
+        </div>
+    </div>
+    <div class="panel">
+        <header>
+            <h2 style="margin-bottom: 15px;">Design & Export</h2>
+            <button type="submit" form="pdf-form" class="primary" style="padding: 0.5rem 1rem;">
+                📄 PDF Erstellen
+            </button>
+        </header>
+
+        <form id="pdf-form" action="{% url 'export_pdf' %}" method="GET" target="_blank" style="display: flex; gap: 15px; align-items: flex-end; flex-wrap: wrap;">
+
+            <div style="display: flex; flex-direction: column;">
+                <label for="style-select" style="font-size: 0.9rem; margin-bottom: 5px;">Design:</label>
+                <select name="style" id="style-select" style="padding: 8px; border: 1px solid #ccc; border-radius: 4px; height: 45px;">
+                    <option value="simple">Simpel</option>
+                    <option value="elegant">Elegant</option>
+                    <option value="geometric">Geometrisch</option>
+                </select>
+            </div>
+
+
+            <div style="display: flex; flex-direction: column; width: 100%; max-width: 400px;">
+                <label for="font-select" style="font-size: 0.9rem; margin-bottom: 5px;">Schriftart:</label>
+
+                <select name="font" id="font-select"
+                        onchange="this.style.fontFamily = this.options[this.selectedIndex].style.fontFamily;"
+                        style="width: 100%; height: 45px; padding: 0 10px; font-size: 16px; line-height: 1.2; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; background-color: #fff; cursor: pointer; font-family: 'Quicksand', sans-serif;">
+
+                    <option value="quicksand" style="font-family: 'Quicksand', sans-serif; font-size: 16px;">Quicksand</option>
+                    <option value="roboto" style="font-family: 'Roboto', sans-serif; font-size: 16px;">Roboto</option>
+                    <option value="oswald" style="font-family: 'Oswald', sans-serif; font-size: 16px;">Oswald</option>
+                    <option value="opensans" style="font-family: 'Open Sans', sans-serif; font-size: 16px;">Open Sans</option>
+                    <option value="ubuntu" style="font-family: 'Ubuntu', sans-serif; font-size: 16px;">Ubuntu</option>
+                    <option value="saira" style="font-family: 'Saira', sans-serif; font-size: 16px;">Saira</option>
+                    <option value="josefinsans" style="font-family: 'Josefin Sans', sans-serif; font-size: 16px;">Josefin Sans</option>
+                    <option value="bitter" style="font-family: 'Bitter', serif; font-size: 16px;">Bitter</option>
+
+                </select>
+            </div>
+
+            <div style="display: flex; flex-direction: column;">
+                <label for="color-primary" style="font-size: 0.9rem; margin-bottom: 5px;">Hauptfarbe:</label>
+                <input type="color" name="color_primary" id="color-primary" value="#1e40af" style="height: 50px; width: 70px; padding: 0; border: none; cursor: pointer;">
+            </div>
+
+            <div style="display: flex; flex-direction: column;">
+                <label for="color-secondary" style="font-size: 0.9rem; margin-bottom: 5px;">Akzentfarbe:</label>
+                <input type="color" name="color_secondary" id="color-secondary" value="#f0f2f5" style="height: 50px; width: 70px; padding: 0; border: none; cursor: pointer;">
+            </div>
+
+        </form>
+        {% load static %}
+        <div style=" margin-bottom: 20px;">
+            <div style="display: flex; gap: 20px; justify-content: space-between; flex-wrap: wrap;">
+                <div onclick="document.getElementById('style-select').value='simple';"
+                     style="flex: 1; min-width: 250px; cursor: pointer; border: 1px solid #ddd; border-radius: 8px; overflow: hidden; transition: transform 0.2s; background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+
+                    <div style="height: 450px; background-color: #f8f9fa; border-bottom: 1px solid #eee;">
+                        <img src="{% static 'img/preview_simple.png' %}" alt="Vorschau Simple" style="width: 100%; height: 100%; object-fit: contain;">
+                    </div>
+
+                    <div style="padding: 15px; text-align: center;">
+                        <h4 style="margin: 0 0 5px 0;">Simpel</h4>
+                    </div>
+                </div>
+
+                <div onclick="document.getElementById('style-select').value='elegant';"
+                     style="flex: 1; min-width: 250px; cursor: pointer; border: 1px solid #ddd; border-radius: 8px; overflow: hidden; transition: transform 0.2s; background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+
+                    <div style="height: 450px; background-color: #f8f9fa; border-bottom: 1px solid #eee;">
+                        <img src="{% static 'img/preview_elegant.png' %}" alt="Vorschau Elegant" style="width: 100%; height: 100%; object-fit: contain;">
+                    </div>
+
+                    <div style="padding: 15px; text-align: center;">
+                        <h4 style="margin: 0 0 5px 0;">Elegant</h4>
+                    </div>
+                </div>
+
+                <div onclick="document.getElementById('style-select').value='geometric';"
+                     style="flex: 1; min-width: 250px; cursor: pointer; border: 1px solid #ddd; border-radius: 8px; overflow: hidden; transition: transform 0.2s; background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+
+                    <div style="height: 450px; background-color: #f8f9fa; border-bottom: 1px solid #eee;">
+                        <img src="{% static 'img/preview_geometric.png' %}" alt="Vorschau Geometrisch" style="width: 100%; height: 100%; object-fit: contain;">
+                    </div>
+
+                    <div style="padding: 15px; text-align: center;">
+                        <h4 style="margin: 0 0 5px 0;">Geometrisch</h4>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</section>
+
+    <section class="page" data-page="archiv">
+        <div class="hero">
+            <h1>Entwürfe, Jobs & Foto Sessions</h1>
+            <p class="subtitle">Verwalten Sie hier Ihre gespeicherten Anschreiben, Job-Favoriten und Foto-Sessions zentral an einem Ort.</p>
+        </div>
+        <div class="archive-grid" style="margin-top: 1rem;">
+            <div class="panel">
+                <header>
+                    <h2>Anschreiben</h2>
+                </header>
+                <ul id="application-list"></ul>
+            </div>
+            <div class="panel">
+                <header>
+                    <h2>Jobs</h2>
+                </header>
+                <ul id="bookmark-list"></ul>
+            </div>
+            <div class="panel">
+                <header>
+                    <h2>Foto Sessions</h2>
+                </header>
+                <ul id="photo-list"></ul>
+            </div>
+        </div>
+    </section>
+
+    <section class="page" data-page="settings">
+        <div class="hero">
+            <div>
+                <h1>Modelle & Infrastruktur</h1>
+                <p class="subtitle">Scanne nach verfügbaren Ollama-Modellen und wähle, welches Modell für den Assistenten genutzt werden soll.</p>
+            </div>
+        </div>
+        <div class="settings-grid">
+            <section class="panel">
+                <header>
+                    <div class="header-content">
+                        <h2>Ollama Modelle</h2>
+                        <div>
+                            <span class="muted-dark">Status: </span>
+                            <span class="muted-dark" id="ollama-status">Bereit zum Scannen.</span>
+                        </div>
+                    </div>
+
+                    <button class="primary" id="ollama-scan" type="button" style="margin-top: -20px;">
+                        Ollama scannen
+                    </button>
+                </header>
+                <div>
+                    <strong>Gefundene Modelle auf diesem Host:</strong> <span class="muted-dark">(Stelle sicher, dass <code>ollama serve</code> läuft.)</span>
+                    <div id="ollama-models" class="model-list muted" style="margin: 0.3rem 0 0.8rem -0.1rem;">
+                        Noch keine Modelle geladen.
+                    </div>
+                    <div class="selected-model" >
+                        <span class="muted-dark">Ausgewähltes Modell:</span>
+                        <strong id="ollama-selected">Kein Modell gewählt</strong>
+                    </div>
+                </div>
+            </section>
+            <section class="panel">
+                <header>
+                    <div>
+                    <h2>ComfyUI Checkpoints</h2>
+                        <span class="muted-dark">Status: </span> <span class="muted-dark" id="comfy-status">Bereit zum Scannen.</span>
+                    </div>
+                    <button class="primary" id="comfy-scan" style="margin-top: -20px;">ComfyUI scannen</button>
+                </header>
+                <div>
+                    <strong>Checkpoints, die ComfyUI am aktuellen Host kennt.</strong>
+                    <div id="comfy-models" class="model-list muted" style="margin: 0.3rem 0 0.8rem -0.1rem;">
+                        Noch keine Checkpoints geladen.
+                    </div>
+                    <div class="selected-model">
+                        <span class="muted-dark">Ausgewählter Checkpoint:</span>
+                        <strong id="comfy-selected">Server-Standard</strong>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </section>
+</main>
+
+<div class="auth-overlay" id="auth-overlay"></div>
+<aside class="auth-panel" id="auth-panel">
+    <div class="auth-panel__header">
+        <h2>Workspace Login</h2>
+        <button class="ghost" id="close-auth">×</button>
+    </div>
+    <div class="auth-panel__body">
+        <form id="login-form" class="auth-form active">
+            <h3>Login</h3>
+            <label>Nutzername <input name="username" required></label>
+            <label>Passwort <input name="password" type="password" required></label>
+            <button type="submit">Login</button>
+            <p class="auth-hint">Kein Konto? <button type="button" class="link" id="show-register">Registrieren</button></p>
+        </form>
+        <form id="register-form" class="auth-form">
+            <h3>Account erstellen</h3>
+            <label>Nutzername <input name="username" required></label>
+            <label>E-Mail <input name="email"></label>
+            <label>Passwort <input name="password" type="password" required></label>
+            <button type="submit">Registrieren</button>
+            <p class="auth-hint">Bereits registriert? <button type="button" class="link" id="show-login">Zum Login</button></p>
+        </form>
+    </div>
+</aside>
+
+<script src="{% static 'app.js' %}?v=7"></script>
+</body>
+</html>

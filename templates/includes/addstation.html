@@ -1,0 +1,267 @@
+<header style="margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center;">
+    <button class="primary" style="font-size: 0.85rem; padding: 0.5rem 0.9rem; display: inline-flex; align-items: center; gap: 0.4rem;" onclick="openAddModal()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        Hinzufügen
+    </button>
+</header>
+
+<div id="experience-overlay" class="auth-overlay" onclick="closeModal()"></div>
+
+<div id="experience-panel" class="auth-panel" style="width: min(600px, 90vw);">
+    <div class="auth-panel__header">
+        <h3 id="modal-title">Neuen Eintrag hinzufügen</h3>
+        <button class="ghost" onclick="closeModal()">✕</button>
+    </div>
+    <div class="auth-panel__body">
+        <form class="job-form" id="station-form" method="POST" action="{% url 'add_station' %}">
+            {% csrf_token %}
+
+            <div>
+                <div style="display: flex; justify-content: space-between; align-items: end; margin-bottom: 0.5rem;">
+                    <label class="eyebrow" style="margin-bottom: 0;">Kategorie</label>
+                    <button type="button" class="ghost" style="padding: 0.2rem 0.5rem; font-size: 0.8rem; height: auto;" onclick="addNewCategory()">+ Neu</button>
+                </div>
+                {{ station_form.kategorie }}
+            </div>
+
+            <div id="form-details-wrapper" style="display: none;">
+                <div style="margin-bottom: 1.5rem;">
+                    <label class="eyebrow" style="margin-bottom: 0.5rem;">Details</label>
+
+                    <div id="group-akademisch" class="dynamic-group" style="display:none; margin-bottom: 0.5rem;">
+                        <input type="text" name="studiengang" placeholder="Studiengang">
+                    </div>
+                    <div id="group-beruflich" class="dynamic-group" style="display:none;"></div>
+                    <div id="group-ehrenamt" class="dynamic-group" style="display:none; margin-bottom: 0.5rem;">
+                        <input type="text" name="ehrenamt_funktion" placeholder="Funktion">
+                    </div>
+                    <div id="group-privat" class="dynamic-group" style="display:none; margin-bottom: 0.5rem;">
+                        <input type="text" name="privat_projekt_typ" placeholder="Projekttyp">
+                    </div>
+
+                    <input type="text" name="position" id="main-position-input" placeholder="Position / Titel">
+                    <input type="text" name="institution" id="main-institution-input" required placeholder="Institution" style="margin-top: 0.5rem;">
+
+                    <div id="shared-grades" style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
+                        <input type="text" name="abschluss_grad" id="input-grad" placeholder="Abschluss / Ausbildung" style="flex: 1;">
+                        <input type="text" name="abschluss_note" id="input-note" placeholder="Note" style="width: 80px;">
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 1.5rem;">
+                    <label class="eyebrow" style="margin-bottom: 0.5rem;">Zeitraum</label>
+                    <div style="display: flex; gap: 1rem;">
+                        <input type="text" name="beginn" id="input-beginn" placeholder="Von" required onfocus="(this.type='date')" onblur="if(!this.value)this.type='text'">
+                        <input type="text" name="ende" id="input-ende" placeholder="Bis" onfocus="(this.type='date')" onblur="if(!this.value)this.type='text'">
+                    </div>
+                    <div style="margin-top: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                        <input type="checkbox" id="current-job" onchange="toggleEndDate(this)" style="width: auto;">
+                        <label for="current-job" style="font-size: 0.9rem; cursor: pointer;">Aktuell noch tätig</label>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 1.5rem;">
+                    <label class="eyebrow" style="margin-bottom: 0.5rem;">Beschreibung & Tätigkeiten</label>
+                    <textarea name="beschreibung_station" rows="6" placeholder="Was waren deine Aufgaben und Erfolge?"></textarea>
+                </div>
+
+                <div class="form-actions" style="margin-top: 2rem;">
+                    <button type="button" class="ghost" onclick="closeModal()">Abbrechen</button>
+                    <button type="submit" class="primary" id="save-btn">Speichern</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    const modalPanel = document.getElementById('experience-panel');
+    const modalOverlay = document.getElementById('experience-overlay');
+    const form = document.getElementById('station-form');
+    const modalTitle = document.getElementById('modal-title');
+    const saveBtn = document.getElementById('save-btn');
+
+    function openAddModal() {
+        resetForm();
+        modalPanel.classList.add('visible');
+        modalOverlay.classList.add('visible');
+        form.action = "{% url 'add_station' %}";
+        modalTitle.innerText = "Neuen Eintrag hinzufügen";
+        saveBtn.innerText = "Speichern";
+        updateFormFields();
+    }
+
+    async function openEditModal(stationId) {
+        resetForm();
+        modalPanel.classList.add('visible');
+        modalOverlay.classList.add('visible');
+        modalTitle.innerText = "Eintrag bearbeiten";
+        saveBtn.innerText = "Änderungen speichern";
+
+        let editUrl = "{% url 'edit_station' 0 %}".replace('0', stationId);
+        form.action = editUrl;
+
+        let getUrl = "{% url 'get_station_data' 0 %}".replace('0', stationId);
+        try {
+            const response = await fetch(getUrl);
+            const data = await response.json();
+
+            const select = document.getElementById('id_kategorie');
+            select.value = data.kategorie_id;
+            updateFormFields();
+
+            document.querySelector('[name="institution"]').value = data.institution;
+            document.querySelector('[name="beschreibung_station"]').value = data.beschreibung;
+
+            const beginnInput = document.getElementById('input-beginn');
+            beginnInput.type = 'date';
+            beginnInput.value = data.beginn;
+
+            const endeInput = document.getElementById('input-ende');
+            const currentCheck = document.getElementById('current-job');
+
+            if (data.ende) {
+                endeInput.type = 'date';
+                endeInput.value = data.ende;
+                currentCheck.checked = false;
+                endeInput.disabled = false;
+            } else {
+                currentCheck.checked = true;
+                toggleEndDate(currentCheck);
+            }
+
+            document.querySelector('[name="position"]').value = data.position_raw;
+            if(data.studiengang) document.querySelector('[name="studiengang"]').value = data.studiengang;
+            if(data.abschluss_grad) document.querySelector('[name="abschluss_grad"]').value = data.abschluss_grad;
+            if(data.abschluss_note) document.querySelector('[name="abschluss_note"]').value = data.abschluss_note;
+        } catch (e) {
+            console.error(e);
+            alert("Fehler beim Laden.");
+            closeModal();
+        }
+    }
+
+    function closeModal() {
+        modalPanel.classList.remove('visible');
+        modalOverlay.classList.remove('visible');
+    }
+
+    function resetForm() {
+        form.reset();
+        document.getElementById('form-details-wrapper').style.display = 'none';
+        const inputs = form.querySelectorAll('input[type="text"], input[type="date"], textarea');
+        inputs.forEach(i => i.value = '');
+        const currentCheck = document.getElementById('current-job');
+        currentCheck.checked = false;
+        toggleEndDate(currentCheck);
+        const select = document.getElementById('id_kategorie');
+        if(select) select.selectedIndex = 0;
+    }
+
+    async function addNewCategory() {
+        const name = prompt("Name der neuen Kategorie (z.B. 'Weiterbildung'):");
+        if (!name) return;
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        try {
+            const response = await fetch("{% url 'add_category_ajax' %}", {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken },
+                body: JSON.stringify({ name: name })
+            });
+            const data = await response.json();
+            if (data.success) {
+                const select = document.getElementById('id_kategorie');
+                const newOption = document.createElement('option');
+                newOption.value = data.id;
+                newOption.text = data.name;
+                newOption.selected = true;
+                if (select.options.length > 0) select.add(newOption, select.options[1]);
+                else select.add(newOption);
+                updateFormFields();
+            } else {
+                alert("Fehler: " + data.error);
+            }
+        } catch (error) {
+            console.error(error);
+            alert("Verbindungsfehler.");
+        }
+    }
+
+    function toggleEndDate(checkbox) {
+        const endInput = document.getElementById('input-ende');
+        if (checkbox.checked) {
+            endInput.value = '';
+            endInput.disabled = true;
+            endInput.placeholder = '– aktuell –';
+            endInput.style.backgroundColor = 'var(--bg-muted)';
+            endInput.type = 'text';
+        } else {
+            endInput.disabled = false;
+            endInput.placeholder = 'Bis';
+            endInput.style.backgroundColor = '';
+        }
+    }
+
+    function updateFormFields() {
+        const select = document.getElementById('id_kategorie');
+        const wrapper = document.getElementById('form-details-wrapper');
+        if (!select) return;
+        if (select.selectedIndex === -1 || select.value === "") {
+            wrapper.style.display = 'none';
+            return;
+        }
+        wrapper.style.display = 'block';
+        const text = select.options[select.selectedIndex].text.toLowerCase();
+        const groups = document.querySelectorAll('.dynamic-group');
+        const instInput = document.getElementById('main-institution-input');
+        const posInput = document.getElementById('main-position-input');
+        const gradesContainer = document.getElementById('shared-grades');
+        const gradInput = document.getElementById('input-grad');
+
+        groups.forEach(el => el.style.display = 'none');
+        instInput.placeholder = "Institution";
+        posInput.placeholder = "Position";
+        posInput.style.display = 'block';
+        gradesContainer.style.display = 'none';
+
+        if (text.includes('akademisch') || text.includes('studium')) {
+            document.getElementById('group-akademisch').style.display = 'block';
+            instInput.placeholder = "Name der Universität / Hochschule";
+            posInput.style.display = 'none';
+            gradesContainer.style.display = 'flex';
+            gradInput.placeholder = "Abschluss (B.Sc., Master)";
+        } else if (text.includes('beruf') || text.includes('arbeit') || text.includes('job')) {
+            document.getElementById('group-beruflich').style.display = 'block';
+            instInput.placeholder = "Name der Firma";
+            posInput.placeholder = "Stellenbezeichnung (z.B. Azubi, Entwickler)";
+            gradesContainer.style.display = 'flex';
+            gradInput.placeholder = "Ausbildungsbezeichnung (bei Ausbildung)";
+        } else if (text.includes('ehrenamt')) {
+            document.getElementById('group-ehrenamt').style.display = 'block';
+            instInput.placeholder = "Name des Vereins / Organisation";
+            posInput.placeholder = "Höchste Position (z.B. Vorstand)";
+        } else if (text.includes('private') || text.includes('projekt')) {
+            document.getElementById('group-privat').style.display = 'block';
+            instInput.placeholder = "Beteiligte Firmen / Personen (Freitext)";
+            posInput.placeholder = "Deine Rolle / Position";
+        } else {
+            instInput.placeholder = "Institution / Aussteller";
+            posInput.placeholder = "Titel / Bezeichnung";
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+        const select = document.getElementById('id_kategorie');
+        if (select) {
+            const opt = document.createElement('option');
+            opt.value = "";
+            opt.text = "Bitte wählen...";
+            opt.selected = true;
+            opt.disabled = true;
+            opt.hidden = true;
+            select.prepend(opt);
+            select.value = "";
+            select.addEventListener('change', updateFormFields);
+        }
+    });
+</script>

@@ -1,0 +1,455 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <link href="{{ font_url|safe }}" rel="stylesheet">
+    <title>Lebenslauf {{ bewerber.vorname }} {{ bewerber.nachname }}</title>
+    <style>
+        :root {
+            --text-dark: #333333;
+            --text-light: #ffffff;
+        }
+
+        @page {
+            size: A4;
+            margin-top: 1.5cm;
+            margin-bottom: 1.5cm;
+            margin-left: 0;
+            margin-right: 0;
+            background: linear-gradient(to right, #f0f0f0 0%, #f0f0f0 38%, #ffffff 38%, #ffffff 100%);
+
+            @bottom-right {
+                content: "Seite " counter(page);
+                font-family: {{ font_family|safe }};
+                font-size: 8pt;
+                color: #999;
+                padding-right: 1cm;
+                padding-bottom: 0.5cm;
+            }
+        }
+
+        @page :first {
+            margin-top: 0;
+            margin-bottom: 1.5cm;
+        }
+
+        body {
+            font-family: {{ font_family|safe }};
+            margin: 0;
+            padding: 0;
+            background-color: transparent;
+            color: var(--text-dark);
+        }
+
+        .header-bar {
+            height: 15px;
+            background-color: {{ color_primary }};
+            width: 100%;
+        }
+
+        .header-content {
+            background-color: {{ color_secondary }};
+            color: var(--text-light);
+            padding: 30px 40px;
+            display: flex;
+            align-items: center;
+            gap: 30px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .profile-img-container {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 3px solid {{ color_primary }};
+            background-color: #fff;
+            flex-shrink: 0;
+        }
+
+        .profile-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .header-text {
+            flex-grow: 1;
+        }
+
+        h1.name {
+            font-size: 32pt;
+            text-transform: uppercase;
+            margin: 0;
+            line-height: 1;
+            letter-spacing: 2px;
+            color: {{ color_primary }};
+        }
+
+        .cv {
+            font-size: 11pt;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-top: 10px;
+            color: {{ color_primary }};
+        }
+
+        .content-container {
+            display: block;
+            width: 100%;
+            table-layout: fixed;
+            border-collapse: collapse;
+        }
+
+        .sidebar {
+            display: block;
+            float: left;
+            width: 38%;
+            padding: 30px 20px 30px 40px;
+            box-sizing: border-box;
+            font-size: 9pt;
+            color: #444;
+        }
+
+        .main-content {
+            display: block;
+            float: right;
+            width: 62%;
+            padding: 30px 40px 30px 20px;
+            box-sizing: border-box;
+        }
+
+        h3 {
+            text-transform: uppercase;
+            font-size: 11pt;
+            font-weight: bold;
+            letter-spacing: 1.5px;
+            margin-top: 0;
+            margin-bottom: 15px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid {{ color_primary }};
+            color: #000;
+            page-break-after: avoid;
+            break-after: avoid;
+        }
+
+        .cat-title {
+            text-transform: uppercase;
+            font-size: 10pt;
+            font-weight: bold;
+            border-bottom: 1px solid #ccc;
+            margin-top: 15px;
+            margin-bottom: 10px;
+            padding-bottom: 2px;
+            color: #333;
+            page-break-after: avoid;
+            break-after: avoid;
+        }
+
+        .sub-cat-title {
+            font-size: 9pt;
+            font-weight: bold;
+            color: #666;
+            margin-top: 10px;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            page-break-after: avoid;
+            break-after: avoid;
+        }
+
+        .contact-row {
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+        }
+
+        .icon {
+            width: 15px;
+            margin-right: 10px;
+            text-align: center;
+            font-size: 10pt;
+        }
+
+        .sidebar-section {
+            margin-bottom: 20px;
+        }
+
+        .keep-together {
+            page-break-inside: avoid;
+            break-inside: avoid;
+            margin-bottom: 20px;
+        }
+
+        .skills-grid-container {
+            width: 100%;
+            column-count: 1;
+            column-gap: 40px;
+        }
+
+        .skill-item {
+            margin-bottom: 6px;
+            font-size: 9.5pt;
+            padding-left: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            break-inside: avoid;
+            page-break-inside: avoid;
+        }
+
+        .skill-bar-container {
+            width: 100px;
+            height: 5px;
+            background-color: #d1d5db;
+            border-radius: 2px;
+            overflow: hidden;
+            margin-left: 10px;
+        }
+
+        .skill-bar-fill {
+            height: 100%;
+            background-color: {{ color_primary }};
+            border-radius: 2px;
+        }
+
+        .station-item {
+            margin-bottom: 20px;
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+
+        .station-title {
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 10pt;
+            margin-bottom: 4px;
+            color: #000;
+        }
+
+        .station-meta {
+            font-size: 9pt;
+            color: #666;
+            margin-bottom: 4px;
+            font-style: italic;
+        }
+
+        .station-desc ul {
+            margin: 0;
+            padding-left: 15px;
+        }
+
+        .station-desc li {
+            margin-bottom: 4px;
+            font-size: 9.5pt;
+            color: #333;
+            line-height: 1.4;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header-bar"></div>
+    <div class="header-content">
+
+        {% if bewerber.bewerbungsfoto %}
+            <div class="profile-img-container">
+                {% if bewerbungsfoto_b64 %}
+            <img src="{{ bewerbungsfoto_b64 }}" class="profile-img">
+                {% elif bewerber.bewerbungsfoto %}
+                    <img src="{{ bewerber.bewerbungsfoto.url }}" class="profile-img">
+                {% endif %}
+            </div>
+        {% endif %}
+
+        <div class="header-text">
+            <h1 class="name">{{ bewerber.vorname }} {{ bewerber.nachname }}</h1>
+            <div class="cv">Lebenslauf</div>
+        </div>
+    </div>
+
+    <div class="content-container">
+
+        <div class="sidebar">
+
+            <div class="sidebar-section">
+                <h3>Persönliche Daten</h3>
+                <div class="contact-row">
+                    <span class="icon">✱</span> {{ bewerber.geburtsdatum|date:"d.m.Y" }}
+                    {% if bewerber.geburtsort %} in {{ bewerber.geburtsort }}{% endif %}
+                </div>
+                {% if bewerber.email %}
+                <div class="contact-row">
+                    <span class="icon">✉</span> {{ bewerber.email }}
+                </div>
+                {% endif %}
+                {% if bewerber.telefonnummer %}
+                <div class="contact-row">
+                    <span class="icon">☎</span> {{ bewerber.telefonnummer }}
+                </div>
+                {% endif %}
+                {% if bewerber.wohnort %}
+                <div class="contact-row" style="margin-bottom: 2px;">
+                    <span class="icon">🏠︎</span> {{ bewerber.strasse }} {{ bewerber.hausnummer }} </br>
+                </div>
+                <div class="contact-row">
+                    <span class="icon"></span> {{ bewerber.plz }} {{ bewerber.wohnort }}
+                </div>
+                {% endif %}
+            </div>
+
+            {% regroup bewerber.stationen.all|dictsort:"kategorie.id" by kategorie as station_categories %}
+
+            {% for cat_group in station_categories %}
+
+                {% if not "Beruf" in cat_group.grouper.name %}
+
+                    <div>
+                        <h3>{{ cat_group.grouper.name }}</h3>
+
+                        {% for station in cat_group.list|dictsortreversed:"beginn" %}
+                            <div class="station-item keep-together">
+                                <div class="station-title">
+                                    {{ station.position }}
+                                    {% if station.abschluss_grad %} ({{ station.abschluss_grad }}){% endif %}
+                                </div>
+                                <div class="station-meta">
+                                    {{ station.institution }}<br>
+                                    {{ station.beginn|date:"m/Y" }} - {% if station.ende %}{{ station.ende|date:"m/Y" }}{% else %}aktuell{% endif %}
+                                </div>
+                                {% if station.beschreibung_station %}
+                                <div class="station-desc">
+                                    {{ station.beschreibung_station|truncatewords:20 }}
+                                </div>
+                                {% endif %}
+
+                                {% if station.abschluss_note %}
+                                    <div class="station-desc">Abschlussnote: {{ station.abschluss_note }}</div>
+                                {% endif %}
+
+
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <div style="margin-bottom: 20px;"></div>
+
+                {% endif %}
+            {% endfor %}
+
+            {% if bewerber.softskills_set.exists %}
+                <div class="keep-together">
+                    <h3>Persönliche Stärken</h3>
+                    <div class="skills-grid-container">
+                        {% for soft in bewerber.softskills_set.all %}
+                            <div class="skill-item">
+                                {{ soft.skill.name }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+
+        </div>
+
+        <div class="main-content">
+
+            {% regroup bewerber.stationen.all|dictsort:"kategorie.id" by kategorie as station_categories %}
+
+            {% for cat_group in station_categories %}
+                {% if "Beruf" in cat_group.grouper.name %}
+
+                    <div class="keep-together">
+                        <h3>{{ cat_group.grouper.name }}</h3>
+
+                        {% for station in cat_group.list|dictsortreversed:"beginn" %}
+                            <div class="station-item">
+                                <div class="station-title">
+                                    {{ station.position }}
+                                </div>
+                                <div class="station-meta">
+                                    {{ station.institution }} | {{ station.beginn|date:"m/Y" }} - {% if station.ende %}{{ station.ende|date:"m/Y" }}{% else %}aktuell{% endif %}
+                                    {% if station.beschreibung_station %}
+                                    <div style="font: 12pt;">
+                                        {{ station.beschreibung_station|linebreaksbr }}
+                                    </div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="station-desc" style="margin-top: 4px;">
+                                    <ul>
+                                        {% for leistung in station.leistungen.all %}
+                                            <li>
+                                                <strong>{{ leistung.titel }}:</strong> {{ leistung.beschreibung }}
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <div style="margin-bottom: 20px;"></div>
+
+                {% endif %}
+            {% endfor %}
+
+            <h3>Kompetenzen & Fähigkeiten</h3>
+
+            <div class="skills-grid-container">
+
+                {% regroup all_skills by skill.kategorie as kategorie_list %}
+
+                {% for cat_group in kategorie_list %}
+
+                    {% if "Soft" not in cat_group.grouper.name and "Stärken" not in cat_group.grouper.name %}
+
+                        <div style="break-inside: avoid; margin-bottom: 15px;" class="keep-together">
+                            <div class="cat-title" style="margin-top:0;">{{ cat_group.grouper.name }}</div>
+
+                            {% regroup cat_group.list by skill.unterkategorie as subcat_list %}
+                            {% for sub_group in subcat_list %}
+
+                                {% if sub_group.grouper %}
+                                    <div class="sub-cat-title">{{ sub_group.grouper.name }}</div>
+                                {% endif %}
+
+                                {% for entry in sub_group.list %}
+                                    <div class="skill-item">
+                                        <span class="skill-name">{{ entry.skill.name }}</span>
+
+                                        {% if entry.skala_wert %}
+
+                                            {% if "Entwickler-Expertise" in entry.skala_wert.skala.name %}
+                                                <div class="skill-bar-container">
+                                                    <div class="skill-bar-fill" style="width: {{ entry.skala_wert.rangwert }}%;"></div>
+                                                </div>
+
+                                            {% elif "Status" in entry.skala_wert.skala.name or "Vorhanden" in entry.skala_wert.skala.name %}
+
+                                            {% elif "Führungsverantwortung" in entry.skala_wert.skala.name %}
+                                                <span class="skill-level-text">({{ entry.skala_wert.bezeichnung }})</span>
+
+                                            {% else %}
+                                                <span class="skill-level-text">({{ entry.skala_wert.bezeichnung }})</span>
+                                            {% endif %}
+
+                                        {% endif %}
+                                    </div>
+                                {% endfor %}
+
+                                <div style="margin-bottom: 6px;"></div>
+                            {% endfor %}
+                        </div>
+
+                    {% endif %}
+
+                {% endfor %}
+
+            </div>
+
+        </div>
+
+    </div>
+
+</body>
+</html>
